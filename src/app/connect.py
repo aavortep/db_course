@@ -18,6 +18,32 @@ class Rehearsal:
     date = None
 
 
+class Room:
+    id = -1
+    base_id = -1
+    name = ""
+    type = ""
+    area = 0
+    cost = 0
+
+
+class Gear:
+    id = -1
+    room_id = -1
+    type = ""
+    brand = ""
+    amount = 0
+
+
+class RehBase:
+    id = -1
+    owner_id = -1
+    name = ""
+    address = ""
+    phone = ""
+    mail = ""
+
+
 storedProc = '''
 CALL change_status('web-site', 'wip', 'done');
 SELECT *
@@ -66,6 +92,82 @@ def sign_up(acc):
     return 0
 
 
+def add_room(conn, room):
+    cur = conn.cursor()
+    query = "select * from room where baseid = %s and name = %s"
+    cur.execute(query, (room.base_id, room.name,))
+    res = cur.fetchall()
+    if len(res) != 0:  # если комната уже существует
+        return 1
+
+    query = "select * from room"
+    cur.execute(query)
+    res = cur.fetchall()
+    room.id = len(res) + 1
+
+    query = "insert into room values (%s, %s, %s, %s, %s, %s)"
+    cur.execute(query, (room.id, room.base_id, room.name, room.type, room.area, room.cost,))
+    conn.commit()
+    cur.close()
+    return 0
+
+
+def add_gear(conn, gear, room_name, base_id):
+    cur = conn.cursor()
+    query = "select id from room where name = %s and baseid = %s"
+    cur.execute(query, (room_name, base_id,))
+    res = cur.fetchall()
+    gear.room_id = res[0][0]
+
+    query = "select * from equipment " \
+            "where equipment.type = %s and equipment.brand = %s " \
+            "and equipment.roomid = %s"
+    cur.execute(query, (gear.type, gear.brand, gear.room_id,))
+    res = cur.fetchall()
+    if len(res) != 0:  # если такое оборудование в этой комнате уже существует
+        return 1
+
+    query = "select * from equipment"
+    cur.execute(query)
+    res = cur.fetchall()
+    gear.id = len(res) + 1
+
+    query = "insert into equipment values (%s, %s, %s, %s, %s)"
+    cur.execute(query, (gear.id, gear.room_id, gear.type, gear.brand, gear.amount,))
+    conn.commit()
+    cur.close()
+    return 0
+
+
+def reg_base(conn, base):
+    cur = conn.cursor()
+    query = "select * from reh_base where address = %s and name = %s"
+    cur.execute(query, (base.address, base.name,))
+    res = cur.fetchall()
+    if len(res) != 0:  # если репбаза уже существует
+        return 1
+
+    query = "select * from reh_base"
+    cur.execute(query)
+    res = cur.fetchall()
+    base.id = len(res) + 1
+
+    query = "insert into reh_base values (%s, %s, %s, %s, %s, %s)"
+    cur.execute(query, (base.id, base.owner_id, base.name, base.address,
+                        base.phone, base.mail,))
+    conn.commit()
+    cur.close()
+    return 0
+
+
+def del_base(conn, base_id):
+    cur = conn.cursor()
+    query = "CALL del_all(%s)"
+    cur.execute(query, (base_id,))
+    conn.commit()
+    cur.close()
+
+
 def get_all_rooms(conn):
     cur = conn.cursor()
     query = "select room.id, room.name, room.type, room.cost, reh_base.name " \
@@ -76,11 +178,33 @@ def get_all_rooms(conn):
     return res
 
 
-def get_all_rehs(conn, acc_id):
+def get_rehs(conn, acc_id):
     cur = conn.cursor()
     query = "select rehearsal.id, rehearsal.rehdate, room.name, room.cost " \
             "from rehearsal join room on rehearsal.roomid = room.id " \
             "where rehearsal.musicianid = %s and rehearsal.rehdate >= current_timestamp"
+    cur.execute(query, (acc_id,))
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
+def rehs_by_base(conn, base_id):
+    cur = conn.cursor()
+    query = "select rehearsal.id, rehearsal.rehdate, room.name, account.fio " \
+            "from rehearsal join room on rehearsal.roomid = room.id " \
+            "join account on rehearsal.musicianid = account.id " \
+            "join reh_base on room.baseid = reh_base.id " \
+            "where reh_base.id = %s and rehearsal.rehdate >= current_timestamp"
+    cur.execute(query, (base_id,))
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
+def get_bases(conn, acc_id):
+    cur = conn.cursor()
+    query = "select id, name, address from reh_base where ownerid = %s"
     cur.execute(query, (acc_id,))
     res = cur.fetchall()
     cur.close()
@@ -118,6 +242,33 @@ def reh_info(conn, reh_id):
             "join reh_base on room.baseid = reh_base.id " \
             "where rehearsal.id = %s"
     cur.execute(query, (reh_id,))
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
+def base_info(conn, base_id):
+    cur = conn.cursor()
+    query = "select name, address, phone, mail from reh_base where id = %s"
+    cur.execute(query, (base_id,))
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
+def rooms_by_base(conn, base_id):
+    cur = conn.cursor()
+    query = "select id, name, type from room where baseid = %s"
+    cur.execute(query, (base_id,))
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
+def gear_by_room(conn, room_id):
+    cur = conn.cursor()
+    query = "select type, brand, amount from equipment where roomid = %s"
+    cur.execute(query, (room_id,))
     res = cur.fetchall()
     cur.close()
     return res

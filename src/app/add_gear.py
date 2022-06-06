@@ -79,7 +79,7 @@ class Ui_MainWindow(object):
         self.name_edit.setGeometry(QtCore.QRect(310, 200, 221, 20))
         self.name_edit.setObjectName("name_edit")
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
-        self.label_4.setGeometry(QtCore.QRect(170, 200, 131, 20))
+        self.label_4.setGeometry(QtCore.QRect(160, 200, 141, 20))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label_4.setFont(font)

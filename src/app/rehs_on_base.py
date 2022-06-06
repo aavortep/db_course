@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'owner_main.ui'
+# Form implementation generated from reading ui file 'rehs_on_base.ui'
 #
 # Created by: PyQt6 UI code generator 6.3.0
 #
@@ -15,21 +15,15 @@ class Ui_MainWindow(object):
         MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.reg_button = QtWidgets.QPushButton(self.centralwidget)
-        self.reg_button.setGeometry(QtCore.QRect(210, 520, 381, 31))
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.reg_button.setFont(font)
-        self.reg_button.setObjectName("reg_button")
+        self.rehs_list = QtWidgets.QListWidget(self.centralwidget)
+        self.rehs_list.setGeometry(QtCore.QRect(210, 70, 381, 451))
+        self.rehs_list.setObjectName("rehs_list")
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(210, 10, 381, 16))
+        self.label.setGeometry(QtCore.QRect(210, 40, 381, 21))
         font = QtGui.QFont()
         font.setPointSize(12)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.bases_list = QtWidgets.QListWidget(self.centralwidget)
-        self.bases_list.setGeometry(QtCore.QRect(210, 41, 381, 471))
-        self.bases_list.setObjectName("bases_list")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 18))
@@ -45,5 +39,4 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.reg_button.setText(_translate("MainWindow", "Зарегистрировать репетиционную базу"))
-        self.label.setText(_translate("MainWindow", "Ваши репетиционные базы:"))
+        self.label.setText(_translate("MainWindow", "Будущие репетиции на выбранной базе:"))

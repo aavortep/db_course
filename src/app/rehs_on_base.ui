@@ -14,31 +14,23 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="reg_button">
+   <widget class="QListWidget" name="rehs_list">
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>520</y>
+      <y>70</y>
       <width>381</width>
-      <height>31</height>
+      <height>451</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <property name="text">
-     <string>Зарегистрировать репетиционную базу</string>
     </property>
    </widget>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
       <x>210</x>
-      <y>10</y>
+      <y>40</y>
       <width>381</width>
-      <height>16</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -47,17 +39,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Ваши репетиционные базы:</string>
-    </property>
-   </widget>
-   <widget class="QListWidget" name="bases_list">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>41</y>
-      <width>381</width>
-      <height>471</height>
-     </rect>
+     <string>Будущие репетиции на выбранной базе:</string>
     </property>
    </widget>
   </widget>

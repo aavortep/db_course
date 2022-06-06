@@ -1,15 +1,11 @@
 import connect
 import sys  # sys нужен для передачи argv в QApplication
 from PyQt6 import QtWidgets
-import welcome
-import sign_in
-import sign_up
-import musician_main
-import owner_main
-import admin_main
-import book
-import future_rehs
-import cancel
+import welcome, sign_in, sign_up
+import musician_main, owner_main, admin_main
+import book, cancel
+import future_rehs, rehs_on_base, base_info
+import add_room, add_gear, reg_base
 
 
 class Welcome(QtWidgets.QMainWindow, welcome.Ui_MainWindow):
@@ -178,7 +174,7 @@ class FutureRehs(QtWidgets.QMainWindow, future_rehs.Ui_MainWindow):
     def __init__(self, conn, acc_id):
         super().__init__()
         self.setupUi(self)
-        rehs = connect.get_all_rehs(conn, acc_id)
+        rehs = connect.get_rehs(conn, acc_id)
         i = 0
         for reh in rehs:
             text = str(reh[0]) + ". " + reh[2] + " - " + str(reh[1]) + \
@@ -230,11 +226,215 @@ class OwnerMain(QtWidgets.QMainWindow, owner_main.Ui_MainWindow):
         super().__init__()
         self.setupUi(self)
         self.conn = connect.connect_owner()
+        bases = connect.get_bases(self.conn, acc_id)
+        i = 0
+        for base in bases:
+            text = str(base[0]) + ". " + base[1] + " (адрес: " + base[2] + ")"
+            self.bases_list.insertItem(i, text)
+            i += 1
+        self.acc_id = acc_id
+
+        self.bases_list.clicked.connect(self.show_base)
+        self.reg_button.clicked.connect(self.reg_base)
+
+    def show_base(self):
+        item = self.bases_list.currentItem()
+        tmp = item.text().split(". ")
+        self.window = BaseInfo(self.conn, int(tmp[0]))
+        self.window.show()
+
+    def reg_base(self):
+        self.window = RegBase(self.conn, self.acc_id)
+        self.window.show()
 
     def closeEvent(self, event):
         self.conn.close()
         print("Owner connection closed")
         event.accept()
+
+
+class RegBase(QtWidgets.QMainWindow, reg_base.Ui_MainWindow):
+    def __init__(self, conn, acc_id):
+        super().__init__()
+        self.setupUi(self)
+        self.conn = conn
+        self.acc_id = acc_id
+
+        self.reg_button.clicked.connect(self.reg_base)
+
+    def reg_base(self):
+        base = connect.RehBase()
+        base.owner_id = self.acc_id
+        base.name = self.name_edit.text()
+        base.address = self.adress_edit.text()
+        base.phone = self.phone_edit.text()
+        base.mail = self.mail_edit.text()
+        if base.name == "" or base.address == "" or base.phone == "" or base.mail == "":
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Пожалуйста, заполните все поля ввода")
+            dlg.exec()
+        elif connect.reg_base(self.conn, base) == 1:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Репетиционная база уже существует")
+            dlg.exec()
+        else:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Готово")
+            dlg.setText("Репетиционная база успешно добавлена")
+            dlg.exec()
+
+
+class BaseInfo(QtWidgets.QMainWindow, base_info.Ui_MainWindow):
+    def __init__(self, conn, base_id):
+        super().__init__()
+        self.setupUi(self)
+        base = connect.base_info(conn, base_id)
+        rooms = connect.rooms_by_base(conn, base_id)
+        text = "Название базы: " + base[0][0] + "\n"
+        text += "Адрес: " + base[0][1] + "\n"
+        text += "Контакты: " + base[0][2] + " " + base[0][3] + "\n"
+        text += "Комнаты:\n"
+        i = 1
+        for room in rooms:
+            text += "[" + str(i) + "] " + room[1] + " (" + room[2] + ")\n"
+            text += "Оборудование в этой комнате:\n"
+            gear = connect.gear_by_room(conn, room[0])
+            j = 1
+            for g in gear:
+                text += str(j) + ". " + g[0] + " - " + g[1] + " (" + str(g[2]) + " шт.)\n"
+                j += 1
+            i += 1
+        label = QtWidgets.QLabel()
+        label.setText(text)
+        self.base_scroll.setWidget(label)
+        self.conn = conn
+        self.base_id = base_id
+
+        self.add_room_button.clicked.connect(self.add_room)
+        self.add_equip_button.clicked.connect(self.add_gear)
+        self.show_button.clicked.connect(self.show_rehs)
+        self.del_button.clicked.connect(self.del_base)
+
+    def add_room(self):
+        self.window = AddRoom(self.conn, self.base_id)
+        self.window.show()
+
+    def add_gear(self):
+        self.window = AddGear(self.conn, self.base_id)
+        self.window.show()
+
+    def show_rehs(self):
+        self.window = RehsOnBase(self.conn, self.base_id)
+        self.window.show()
+
+    def del_base(self):
+        connect.del_base(self.conn, self.base_id)
+        dlg = QtWidgets.QMessageBox(self)
+        dlg.setWindowTitle("Готово")
+        dlg.setText("Репетиционная база успешно удалена")
+        dlg.exec()
+
+
+class AddRoom(QtWidgets.QMainWindow, add_room.Ui_MainWindow):
+    def __init__(self, conn, base_id):
+        super().__init__()
+        self.setupUi(self)
+        self.conn = conn
+        self.base_id = base_id
+
+        self.add_button.clicked.connect(self.add_room)
+
+    def add_room(self):
+        room = connect.Room()
+        room.base_id = self.base_id
+        room.name = self.name_edit.text()
+        if self.band_radio.isChecked():
+            room.type = "band"
+        elif self.vocal_radio.isChecked():
+            room.type = "vocal"
+        else:
+            room.type = "drum"
+        room.area = int(self.area_spin.text())
+        room.cost = int(self.cost_spin.text())
+        if room.name == "":
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Пожалуйста, заполните все поля ввода")
+            dlg.exec()
+        elif connect.add_room(self.conn, room) == 1:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Комната уже существует")
+            dlg.exec()
+        else:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Готово")
+            dlg.setText("Комната успешно добавлена")
+            dlg.exec()
+
+
+class AddGear(QtWidgets.QMainWindow, add_gear.Ui_MainWindow):
+    def __init__(self, conn, base_id):
+        super().__init__()
+        self.setupUi(self)
+        self.conn = conn
+        self.base_id = base_id
+
+        self.add_button.clicked.connect(self.add_gear)
+
+    def add_gear(self):
+        gear = connect.Gear()
+        room_name = self.name_edit.text()
+        if self.amp_radio.isChecked():
+            gear.type = "amp"
+        elif self.mic_radio.isChecked():
+            gear.type = "mic"
+        elif self.drums_radio.isChecked():
+            gear.type = "drums"
+        elif self.commut_radio.isChecked():
+            gear.type = "commutation"
+        else:
+            gear.type = "pedal"
+        gear.brand = self.brand_edit.text()
+        gear.amount = int(self.amount_spin.text())
+        if room_name == "" or gear.brand == "":
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Пожалуйста, заполните все поля ввода")
+            dlg.exec()
+        elif connect.add_gear(self.conn, gear, room_name, self.base_id) == 1:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Такое оборудование в этой комнате уже есть")
+            dlg.exec()
+        else:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Готово")
+            dlg.setText("Оборудование успешно добавлено")
+            dlg.exec()
+
+
+class RehsOnBase(QtWidgets.QMainWindow, rehs_on_base.Ui_MainWindow):
+    def __init__(self, conn, base_id):
+        super().__init__()
+        self.setupUi(self)
+        rehs = connect.rehs_by_base(conn, base_id)
+        i = 0
+        for reh in rehs:
+            text = str(reh[0]) + ". " + str(reh[1]) + " - " + reh[2] + " (" + reh[3] + ")"
+            self.rehs_list.insertItem(i, text)
+            i += 1
+        self.conn = conn
+
+        self.rehs_list.clicked.connect(self.show_reh)
+
+    def show_reh(self):
+        item = self.rehs_list.currentItem()
+        tmp = item.text().split(". ")
+        self.window = Cancel(self.conn, int(tmp[0]))
+        self.window.show()
 
 
 class AdminMain(QtWidgets.QMainWindow, admin_main.Ui_MainWindow):
