@@ -54,4 +54,5 @@ grant select, delete on rehearsal to base_owner;
 grant all privileges on reh_base, equipment, room, account to base_owner;
 
 create user app_admin with password 'linkinpark';
-grant delete on rehearsal, reh_base, equipment, room to app_admin;
+grant select, delete on rehearsal, reh_base, equipment, room to app_admin;
+grant select on account to app_admin;

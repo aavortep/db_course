@@ -4,7 +4,8 @@ from PyQt6 import QtWidgets
 import welcome, sign_in, sign_up
 import musician_main, owner_main, admin_main
 import book, cancel
-import future_rehs, rehs_on_base, base_info
+import future_rehs, rehs_on_base
+import base_info, base_admin, bases_admin
 import add_room, add_gear, reg_base
 
 
@@ -153,10 +154,24 @@ class Book(QtWidgets.QMainWindow, book.Ui_MainWindow):
         reh.musician_id = self.acc_id
         reh.room_id = self.room_id
         date = self.dateTimeEdit.dateTime().date()
-        right_format = str(date.year()) + "-0" + str(date.month()) + \
-                       "-0" + str(date.day()) + " 0"
+        right_format = str(date.year())
+        if date.month() < 10:
+            right_format += "-0" + str(date.month())
+        else:
+            right_format += "-" + str(date.month())
+        if date.day() < 10:
+            right_format += "-0" + str(date.day()) + " "
+        else:
+            right_format += "-" + str(date.day()) + " "
         time = self.dateTimeEdit.dateTime().time()
-        right_format += str(time.hour()) + ":0" + str(time.minute()) + ":00"
+        if time.hour() < 10:
+            right_format += "0" + str(time.hour())
+        else:
+            right_format += str(time.hour())
+        if time.minute() < 10:
+            right_format += ":0" + str(time.minute()) + ":00"
+        else:
+            right_format += ":" + str(time.minute()) + ":00"
         reh.date = right_format
         if connect.book(self.conn, reh) == 1:
             dlg = QtWidgets.QMessageBox(self)
@@ -443,19 +458,145 @@ class AdminMain(QtWidgets.QMainWindow, admin_main.Ui_MainWindow):
         self.setupUi(self)
         self.conn = connect.connect_admin()
 
+        self.find_base_button.clicked.connect(self.find_bases)
+        self.find_reh_button.clicked.connect(self.find_rehs)
+
+    def find_bases(self):
+        base_name = self.name_edit.text()
+        if base_name == "":
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Пожалуйста, заполните поле с названием базы")
+            dlg.exec()
+        else:
+            res = connect.bases_by_name(self.conn, base_name)
+            if len(res) == 0:
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Ошибка")
+                dlg.setText("Репетиционных баз с таким названием не найдено")
+                dlg.exec()
+            else:
+                self.window = BasesAdmin(self.conn, res)
+                self.window.show()
+
+    def find_rehs(self):
+        date = self.date_edit.dateTime().date()
+        right_format = str(date.year())
+        if date.month() < 10:
+            right_format += "-0" + str(date.month())
+        else:
+            right_format += "-" + str(date.month())
+        if date.day() < 10:
+            right_format += "-0" + str(date.day()) + " "
+        else:
+            right_format += "-" + str(date.day()) + " "
+        time = self.date_edit.dateTime().time()
+        if time.hour() < 10:
+            right_format += "0" + str(time.hour())
+        else:
+            right_format += str(time.hour())
+        if time.minute() < 10:
+            right_format += ":0" + str(time.minute()) + ":00"
+        else:
+            right_format += ":" + str(time.minute()) + ":00"
+        date = right_format
+        rehs = connect.rehs_by_date(self.conn, date)
+        if len(rehs) == 0:
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Репетиции не найдены")
+            dlg.exec()
+        else:
+            self.window = RehsByDate(self.conn, rehs)
+            self.window.show()
+
     def closeEvent(self, event):
         self.conn.close()
         print("Admin connection closed")
         event.accept()
 
 
+class RehsByDate(QtWidgets.QMainWindow, future_rehs.Ui_MainWindow):
+    def __init__(self, conn, rehs):
+        super().__init__()
+        self.setupUi(self)
+        i = 0
+        for reh in rehs:
+            text = str(reh[0]) + ". " + str(reh[1]) + " (комната: " + reh[2] + ")"
+            self.rehs_list.insertItem(i, text)
+            i += 1
+        self.conn = conn
+
+        self.rehs_list.clicked.connect(self.show_reh)
+
+    def show_reh(self):
+        item = self.rehs_list.currentItem()
+        tmp = item.text().split(". ")
+        self.window = Cancel(self.conn, int(tmp[0]))
+        self.window.show()
+
+
+class BasesAdmin(QtWidgets.QMainWindow, bases_admin.Ui_MainWindow):
+    def __init__(self, conn, bases):
+        super().__init__()
+        self.setupUi(self)
+        i = 0
+        for base in bases:
+            text = str(base[0]) + ". " + base[2] + " (адрес: " + base[3] + ")"
+            self.bases_list.insertItem(i, text)
+            i += 1
+        self.conn = conn
+
+        self.bases_list.clicked.connect(self.show_base)
+
+    def show_base(self):
+        item = self.bases_list.currentItem()
+        tmp = item.text().split(". ")
+        self.window = BaseAdmin(self.conn, int(tmp[0]))
+        self.window.show()
+
+
+class BaseAdmin(QtWidgets.QMainWindow, base_admin.Ui_MainWindow):
+    def __init__(self, conn, base_id):
+        super().__init__()
+        self.setupUi(self)
+        base = connect.base_info(conn, base_id)
+        rooms = connect.rooms_by_base(conn, base_id)
+        text = "Название базы: " + base[0][0] + "\n"
+        text += "Адрес: " + base[0][1] + "\n"
+        text += "Контакты:\n" + base[0][2] + "\n" + base[0][3] + "\n"
+        text += "Комнаты:\n"
+        i = 1
+        for room in rooms:
+            text += "[" + str(i) + "] " + room[1] + " (" + room[2] + ")\n"
+            text += "Оборудование в этой комнате:\n"
+            gear = connect.gear_by_room(conn, room[0])
+            j = 1
+            for g in gear:
+                text += str(j) + ". " + g[0] + " - " + g[1] + " (" + str(g[2]) + " шт.)\n"
+                j += 1
+            i += 1
+        label = QtWidgets.QLabel()
+        label.setText(text)
+        self.base_scroll.setWidget(label)
+        self.conn = conn
+        self.base_id = base_id
+
+        self.del_button.clicked.connect(self.del_base)
+
+    def del_base(self):
+        connect.del_base(self.conn, self.base_id)
+        dlg = QtWidgets.QMessageBox(self)
+        dlg.setWindowTitle("Готово")
+        dlg.setText("Репетиционная база успешно удалена")
+        dlg.exec()
+
+
 def main():
-    #connection = connect.connect()
     app = QtWidgets.QApplication(sys.argv)
     window = Welcome()
     window.show()  # Показываем окно
     app.exec()  # и запускаем приложение
-    #connection.close()
 
 
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем

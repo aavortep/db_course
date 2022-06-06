@@ -211,6 +211,26 @@ def get_bases(conn, acc_id):
     return res
 
 
+def bases_by_name(conn, base_name):
+    cur = conn.cursor()
+    query = "select * from reh_base where name = %s"
+    cur.execute(query, (base_name,))
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
+def rehs_by_date(conn, date):
+    cur = conn.cursor()
+    query = "select rehearsal.id, rehearsal.rehdate, room.name " \
+            "from rehearsal join room on rehearsal.roomid = room.id " \
+            "where rehearsal.rehdate = %s"
+    cur.execute(query, (date,))
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
 def room_info(conn, room_id):
     cur = conn.cursor()
     query = "select room.name, room.type, room.area, room.cost, " \
