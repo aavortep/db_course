@@ -8,6 +8,8 @@ import musician_main
 import owner_main
 import admin_main
 import book
+import future_rehs
+import cancel
 
 
 class Welcome(QtWidgets.QMainWindow, welcome.Ui_MainWindow):
@@ -109,11 +111,16 @@ class MusicianMain(QtWidgets.QMainWindow, musician_main.Ui_MainWindow):
         self.acc_id = acc_id
 
         self.rooms_list.clicked.connect(self.show_room)
+        self.show_button.clicked.connect(self.show_rehs)
 
     def show_room(self):
         item = self.rooms_list.currentItem()
         tmp = item.text().split(". ")
         self.window = Book(self.conn, int(tmp[0]), self.acc_id)
+        self.window.show()
+
+    def show_rehs(self):
+        self.window = FutureRehs(self.conn, self.acc_id)
         self.window.show()
 
     def closeEvent(self, event):
@@ -162,9 +169,60 @@ class Book(QtWidgets.QMainWindow, book.Ui_MainWindow):
             dlg.exec()
         else:
             dlg = QtWidgets.QMessageBox(self)
-            dlg.setWindowTitle("Ошибка")
+            dlg.setWindowTitle("Готово")
             dlg.setText("Репетиция успешно забронирована")
             dlg.exec()
+
+
+class FutureRehs(QtWidgets.QMainWindow, future_rehs.Ui_MainWindow):
+    def __init__(self, conn, acc_id):
+        super().__init__()
+        self.setupUi(self)
+        rehs = connect.get_all_rehs(conn, acc_id)
+        i = 0
+        for reh in rehs:
+            text = str(reh[0]) + ". " + reh[2] + " - " + str(reh[1]) + \
+                   " (" + str(reh[3]) + " р. за 3 часа)"
+            self.rehs_list.insertItem(i, text)
+            i += 1
+        self.conn = conn
+
+        self.rehs_list.clicked.connect(self.show_reh)
+
+    def show_reh(self):
+        item = self.rehs_list.currentItem()
+        tmp = item.text().split(". ")
+        self.window = Cancel(self.conn, int(tmp[0]))
+        self.window.show()
+
+
+class Cancel(QtWidgets.QMainWindow, cancel.Ui_MainWindow):
+    def __init__(self, conn, reh_id):
+        super().__init__()
+        self.setupUi(self)
+        reh = connect.reh_info(conn, reh_id)
+        text = "Дата репетиции: " + str(reh[0][0]) + "\n"
+        text += "Комната: " + reh[0][1] + "\n"
+        text += "Тип: " + reh[0][2] + "\n"
+        text += "Площадь: " + str(reh[0][3]) + " м^2\n"
+        text += "Стоимость: " + str(reh[0][4]) + " р. за 3 часа\n"
+        text += "Репетиционная база: " + reh[0][5] + "\n"
+        text += "Адрес: " + reh[0][6] + "\n"
+        text += "Контакты: " + reh[0][7] + " " + reh[0][8]
+        label = QtWidgets.QLabel()
+        label.setText(text)
+        self.reh_scroll.setWidget(label)
+        self.conn = conn
+        self.reh_id = reh_id
+
+        self.cancel_button.clicked.connect(self.cancel)
+
+    def cancel(self):
+        connect.cancel(self.conn, self.reh_id)
+        dlg = QtWidgets.QMessageBox(self)
+        dlg.setWindowTitle("Готово")
+        dlg.setText("Репетиция успешно отменена")
+        dlg.exec()
 
 
 class OwnerMain(QtWidgets.QMainWindow, owner_main.Ui_MainWindow):

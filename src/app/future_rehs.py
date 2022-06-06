@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'cancel.ui'
+# Form implementation generated from reading ui file 'future_rehs.ui'
 #
 # Created by: PyQt6 UI code generator 6.3.0
 #
@@ -15,22 +15,15 @@ class Ui_MainWindow(object):
         MainWindow.resize(800, 600)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.cancel_button = QtWidgets.QPushButton(self.centralwidget)
-        self.cancel_button.setGeometry(QtCore.QRect(240, 410, 321, 31))
+        self.rehs_list = QtWidgets.QListWidget(self.centralwidget)
+        self.rehs_list.setGeometry(QtCore.QRect(210, 70, 381, 451))
+        self.rehs_list.setObjectName("rehs_list")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(210, 40, 381, 21))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.cancel_button.setFont(font)
-        self.cancel_button.setStyleSheet("background-color: rgb(255, 85, 0);\n"
-"color: rgb(255, 255, 255);")
-        self.cancel_button.setObjectName("cancel_button")
-        self.reh_scroll = QtWidgets.QScrollArea(self.centralwidget)
-        self.reh_scroll.setGeometry(QtCore.QRect(240, 120, 321, 281))
-        self.reh_scroll.setWidgetResizable(True)
-        self.reh_scroll.setObjectName("reh_scroll")
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 319, 279))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.reh_scroll.setWidget(self.scrollAreaWidgetContents)
+        self.label.setFont(font)
+        self.label.setObjectName("label")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 18))
@@ -46,4 +39,4 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.cancel_button.setText(_translate("MainWindow", "Отменить репетицию"))
+        self.label.setText(_translate("MainWindow", "Ваши предстоящие репетиции:"))

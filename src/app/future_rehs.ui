@@ -14,13 +14,23 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="cancel_button">
+   <widget class="QListWidget" name="rehs_list">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>410</y>
-      <width>321</width>
-      <height>31</height>
+      <x>210</x>
+      <y>70</y>
+      <width>381</width>
+      <height>451</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>40</y>
+      <width>381</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -28,36 +38,9 @@
       <pointsize>12</pointsize>
      </font>
     </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 85, 0);
-color: rgb(255, 255, 255);</string>
-    </property>
     <property name="text">
-     <string>Отменить репетицию</string>
+     <string>Ваши предстоящие репетиции:</string>
     </property>
-   </widget>
-   <widget class="QScrollArea" name="reh_scroll">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>120</y>
-      <width>321</width>
-      <height>281</height>
-     </rect>
-    </property>
-    <property name="widgetResizable">
-     <bool>true</bool>
-    </property>
-    <widget class="QWidget" name="scrollAreaWidgetContents">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>319</width>
-       <height>279</height>
-      </rect>
-     </property>
-    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
