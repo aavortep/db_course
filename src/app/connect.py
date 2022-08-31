@@ -1,5 +1,6 @@
 import psycopg2
 from psycopg2 import OperationalError
+from datetime import datetime
 
 
 class Account:
@@ -73,8 +74,8 @@ def sign_in(mail, password):
 def sign_up(acc):
     conn = connect()
     cur = conn.cursor()
-    query = "select * from account where mail = %s and password = %s"
-    cur.execute(query, (acc.mail, acc.password,))
+    query = "select * from account where mail = %s"
+    cur.execute(query, (acc.mail,))
     res = cur.fetchall()
     if len(res) != 0:  # если аккаунт уже существует
         return 1
@@ -114,9 +115,13 @@ def add_room(conn, room):
 
 def add_gear(conn, gear, room_name, base_id):
     cur = conn.cursor()
+
     query = "select id from room where name = %s and baseid = %s"
     cur.execute(query, (room_name, base_id,))
     res = cur.fetchall()
+    if len(res) == 0:  # если такой комнаты не существует
+        return 2
+
     gear.room_id = res[0][0]
 
     query = "select * from equipment " \
@@ -143,6 +148,11 @@ def reg_base(conn, base):
     cur = conn.cursor()
     query = "select * from reh_base where address = %s and name = %s"
     cur.execute(query, (base.address, base.name,))
+    res = cur.fetchall()
+    if len(res) != 0:  # если репбаза уже существует
+        return 1
+    query = "select * from reh_base where mail = %s"
+    cur.execute(query, (base.mail,))
     res = cur.fetchall()
     if len(res) != 0:  # если репбаза уже существует
         return 1
@@ -296,6 +306,10 @@ def gear_by_room(conn, room_id):
 
 def book(conn, reh):
     cur = conn.cursor()
+
+    if datetime.strptime(reh.date, "%Y-%m-%d %H:%M:%S") < datetime.now():
+        return 2
+
     query = "select * from rehearsal where rehdate =  %s and roomid = %s"
     cur.execute(query, (reh.date, reh.room_id,))
     res = cur.fetchall()
