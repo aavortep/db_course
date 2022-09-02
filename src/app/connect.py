@@ -344,7 +344,7 @@ def connect():
         # print("Connection to PostgreSQL DB successful")
 
     except OperationalError as e:
-        print(f"The error '{e}' occurred")
+        print("The error '{e}' occurred")
     return connection
 
 
