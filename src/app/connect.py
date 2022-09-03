@@ -336,6 +336,19 @@ def cancel(conn, reh_id):
     cur.close()
 
 
+def test_query(conn):
+    cur = conn.cursor()
+    query = "select rehearsal.rehdate, room.name, room.type, room.area, room.cost, " \
+            "reh_base.name, reh_base.address, reh_base.phone, reh_base.mail " \
+            "from rehearsal join room on rehearsal.roomid = room.id " \
+            "join account on rehearsal.musicianid = account.id " \
+            "join reh_base on room.baseid = reh_base.id"
+    cur.execute(query)
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+
 def connect():
     connection = None
     try:
@@ -344,7 +357,7 @@ def connect():
         # print("Connection to PostgreSQL DB successful")
 
     except OperationalError as e:
-        print("The error '{e}' occurred")
+        print(f"The error '{e}' occurred")
     return connection
 
 
@@ -356,7 +369,7 @@ def connect_musician():
         print("Connection of musician successful")
 
     except OperationalError as e:
-        print("The error '{e}' occurred")
+        print(f"The error '{e}' occurred")
     return connection
 
 

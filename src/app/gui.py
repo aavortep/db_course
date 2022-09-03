@@ -7,6 +7,7 @@ import book, cancel
 import future_rehs, rehs_on_base
 import base_info, base_admin, bases_admin
 import add_room, add_gear, reg_base
+import time
 
 
 class Welcome(QtWidgets.QMainWindow, welcome.Ui_MainWindow):
@@ -609,8 +610,20 @@ def main():
     app.exec()  # и запускаем приложение
 
 
+def measure():
+    conn = connect.connect()
+    n = 100
+    start = time.perf_counter_ns()
+    for i in range(n):
+        connect.test_query(conn)
+    end = time.perf_counter_ns()
+    elapsed = (end - start) / n
+    print(elapsed)
+
+
 if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
     main()  # то запускаем функцию main()
+    #measure()
 
 
 # menu(connection)
