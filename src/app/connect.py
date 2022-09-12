@@ -172,7 +172,7 @@ def reg_base(conn, base):
 
 def del_base(conn, base_id):
     cur = conn.cursor()
-    query = "CALL del_all(%s)"
+    query = "delete from reh_base where id = %s"
     cur.execute(query, (base_id,))
     conn.commit()
     cur.close()
