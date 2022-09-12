@@ -1,0 +1,27 @@
+\babel@toc {russian}{}\relax 
+\contentsline {section}{Введение}{6}{table.caption.1}%
+\contentsline {section}{\numberline {1}Аналитическая часть}{7}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Анализ задачи и существующих решений}{7}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Формализация данных}{7}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Типы пользователей}{9}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}Классификации СУБД}{10}{subsection.1.4}%
+\contentsline {section}{\numberline {2}Конструкторская часть}{14}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Проектирование БД}{14}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Требования к программе}{16}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Структура ПО}{17}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Способы и этапы тестирования}{18}{subsection.2.4}%
+\contentsline {section}{\numberline {3}Технологическая часть}{20}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Выбор СУБД}{20}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Выбор ЯП и среды программирования}{20}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Детали реализации}{21}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Исследовательская часть}{26}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Цель эксперимента}{26}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Постановка эксперимента}{26}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Результаты эксперимента}{27}{subsection.4.3}%
+\contentsline {section}{Заключение}{30}{figure.caption.16}%
+\contentsline {section}{СПИСОК ИСПОЛЬЗОВАННЫХ ИСТОЧНИКОВ}{31}{figure.caption.16}%
+\contentsline {section}{ПРИЛОЖЕНИЕ А}{32}{figure.caption.16}%
+\contentsline {section}{ПРИЛОЖЕНИЕ Б}{33}{lstnumber.1.35}%
+\contentsline {section}{ПРИЛОЖЕНИЕ В}{34}{lstnumber.2.14}%
+\contentsline {section}{ПРИЛОЖЕНИЕ Г}{35}{lstnumber.3.35}%
+\contentsline {section}{ПРИЛОЖЕНИЕ Д}{36}{lstnumber.4.9}%
