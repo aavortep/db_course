@@ -174,12 +174,13 @@ class Book(QtWidgets.QMainWindow, book.Ui_MainWindow):
         else:
             right_format += ":" + str(time.minute()) + ":00"
         reh.date = right_format
-        if connect.book(self.conn, reh) == 2:
+        error = connect.book(self.conn, reh)
+        if error == 2:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Ошибка")
             dlg.setText("Некорректная дата репетиции")
             dlg.exec()
-        elif connect.book(self.conn, reh) == 1:
+        elif error == 1:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Ошибка")
             dlg.setText("Извините. Комната на это время уже занята")
@@ -425,12 +426,13 @@ class AddGear(QtWidgets.QMainWindow, add_gear.Ui_MainWindow):
             dlg.setWindowTitle("Ошибка")
             dlg.setText("Пожалуйста, заполните все поля ввода")
             dlg.exec()
-        elif connect.add_gear(self.conn, gear, room_name, self.base_id) == 2:
+        error = connect.add_gear(self.conn, gear, room_name, self.base_id)
+        if error == 2:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Ошибка")
             dlg.setText("Такой комнаты не существует")
             dlg.exec()
-        elif connect.add_gear(self.conn, gear, room_name, self.base_id) == 1:
+        elif error == 1:
             dlg = QtWidgets.QMessageBox(self)
             dlg.setWindowTitle("Ошибка")
             dlg.setText("Такое оборудование в этой комнате уже есть")
