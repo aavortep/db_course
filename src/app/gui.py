@@ -8,14 +8,40 @@ import future_rehs, rehs_on_base
 import base_info, base_admin, bases_admin
 import add_room, add_gear, reg_base
 import time
+import os
 
 
 class Welcome(QtWidgets.QMainWindow, welcome.Ui_MainWindow):
     def __init__(self):
-        super().__init__()
-        self.setupUi(self)  # Это нужно для инициализации нашего дизайна
-        self.signin_button.clicked.connect(self.sign_in)
-        self.signup_button.clicked.connect(self.sign_up)
+        os_type = sys.platform.lower()
+        if "win" in os_type:
+            command = "wmic bios get serialnumber"
+        else:
+            command = "hal-get-property --udi /org/freedesktop/Hal/devices/computer " \
+                      "--key system.hardware.uuid"
+        serial = os.popen(command).read().replace("\n", "")
+
+        try:
+            f = open("serial.key", "r")
+            binded_serial = f.read()
+            if serial == binded_serial:
+                super().__init__()
+                self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+                self.signin_button.clicked.connect(self.sign_in)
+                self.signup_button.clicked.connect(self.sign_up)
+            else:
+                super().__init__()
+                dlg = QtWidgets.QMessageBox(self)
+                dlg.setWindowTitle("Ошибка")
+                dlg.setText("Невозможно запустить приложение")
+                dlg.exec()
+            f.close()
+        except FileNotFoundError:
+            super().__init__()
+            dlg = QtWidgets.QMessageBox(self)
+            dlg.setWindowTitle("Ошибка")
+            dlg.setText("Невозможно запустить приложение")
+            dlg.exec()
 
     def sign_in(self):
         self.window = SignIn()
